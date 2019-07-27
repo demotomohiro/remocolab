@@ -38,4 +38,13 @@ Login to ngrok, click Auth on left side menu, click Copy, return to Google Colab
 7. remocolab setup ngrok and SSH server. Please wait for it done (about 2 minutes)
 8. Then, root and colab user password and ssh command to connect the server will appear.
 9. Copy & paste the ssh command to your terminal and login to the server using displayed colab user password.
+(Even if you just want to use TurboVNC, you need to login using SSH to make SSH port forwarding)
 
+* If you use TurboVNC:
+10. Wait for remocolab setup TurboVNC (about 2 minutes)
+11. When VNC password is displayed, run TurboVNC server, set server address to ``localhost:1`` and connect
+12. Then, password will be asked. Copy & paste that VNC password to your TurboVNC viewer.
+
+## How to run OpenGL applications
+Put the command to run the OpenGL application after ``vglrun``.
+For example, ``vglrun firefox`` runs firefox and you can watch web sites using WebGL with hardware acceleration.
