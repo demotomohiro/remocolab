@@ -20,8 +20,6 @@ def _download(url, path):
       shutil.copyfileobj(response, outfile)
 
 def _setupSSHDImpl(ngrok_token, ngrok_region):
-  subprocess.run(["unminimize"], input = "y\n", check = True, universal_newlines = True)
-
   #apt-get update
   #apt-get upgrade
   cache = apt.Cache()
@@ -29,6 +27,8 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   cache.open(None)
   cache.upgrade()
   cache.commit()
+
+  subprocess.run(["unminimize"], input = "y\n", check = True, universal_newlines = True)
 
   _installPkg(cache, "openssh-server")
   cache.commit()
