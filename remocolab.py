@@ -191,10 +191,12 @@ with vnc_user_passwd.open('wb') as f:
     input=vncpasswd_input,
     universal_newlines=True)
 vnc_user_passwd.chmod(0o600)
-
 subprocess.run(
   ["/opt/TurboVNC/bin/vncserver"]
 )
+
+#Disable screensaver because no one would want it.
+(pathlib.Path.home() / ".xscreensaver").write_text("mode: off\\n")
 """)
   r = subprocess.run(
                     ["su", "-c", "python3 vncrun.py", "colab"],
