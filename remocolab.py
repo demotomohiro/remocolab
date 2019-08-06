@@ -33,6 +33,10 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   _installPkg(cache, "openssh-server")
   cache.commit()
 
+  #Prevent ssh session disconnection.
+  with open("/etc/ssh/sshd_config", "a") as f:
+    f.write("\n\nClientAliveInterval 120\n")
+
   _download("https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip", "ngrok.zip")
   shutil.unpack_archive("ngrok.zip")
   pathlib.Path("ngrok").chmod(stat.S_IXUSR)
@@ -62,7 +66,7 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   hostname = m.group(1)
   port = m.group(2)
 
-  ssh_common_options =  "-o UserKnownHostsFile=/dev/null  -o ServerAliveInterval=60"
+  ssh_common_options =  "-o UserKnownHostsFile=/dev/null"
   print("---")
   print("Command to connect to the ssh server:")
   print("✂️"*24)
