@@ -33,6 +33,13 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   _installPkg(cache, "openssh-server")
   cache.commit()
 
+  #Reset host keys
+  for i in pathlib.Path("/etc/ssh").glob("ssh_host_*_key"):
+    i.unlink()
+  subprocess.run(
+                  ["ssh-keygen", "-A"],
+                  check = True)
+
   #Prevent ssh session disconnection.
   with open("/etc/ssh/sshd_config", "a") as f:
     f.write("\n\nClientAliveInterval 120\n")
