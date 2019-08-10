@@ -44,6 +44,14 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   with open("/etc/ssh/sshd_config", "a") as f:
     f.write("\n\nClientAliveInterval 120\n")
 
+  print("ECDSA key fingerprint of host:")
+  ret = subprocess.run(
+                ["ssh-keygen", "-lvf", "/etc/ssh/ssh_host_ecdsa_key.pub"],
+                stdout = subprocess.PIPE,
+                check = True,
+                universal_newlines = True)
+  print(ret.stdout)
+
   _download("https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip", "ngrok.zip")
   shutil.unpack_archive("ngrok.zip")
   pathlib.Path("ngrok").chmod(stat.S_IXUSR)
@@ -73,7 +81,7 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   hostname = m.group(1)
   port = m.group(2)
 
-  ssh_common_options =  "-o UserKnownHostsFile=/dev/null"
+  ssh_common_options =  "-o UserKnownHostsFile=/dev/null -o VisualHostKey=yes"
   print("---")
   print("Command to connect to the ssh server:")
   print("✂️"*24)
