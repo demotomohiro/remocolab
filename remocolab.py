@@ -1,6 +1,7 @@
 import apt, apt.debfile
 import pathlib, stat, shutil, urllib.request, subprocess, getpass, time
 import secrets, json, re
+import IPython.utils.io
 
 def _installPkg(cache, name):
   pkg = cache[name]
@@ -18,6 +19,19 @@ def _download(url, path):
   with urllib.request.urlopen(url) as response:
     with open(path, 'wb') as outfile:
       shutil.copyfileobj(response, outfile)
+
+def _check_gpu_available():
+  r = subprocess.run(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], stdout = subprocess.PIPE, universal_newlines = True)
+  if r.returncode != 0:
+    print("This is not a runtime with GPU")
+  elif r.stdout == "Tesla K80\n":
+    print("Warning! GPU of your assigned virtual machine is Tesla K80.")
+    print("You might get better GPU by reseting the runtime.")
+  else:
+    return True
+
+  answer = IPython.utils.io.ask_yes_no("Do you want to continue? [y/n]")
+  return answer
 
 def _setupSSHDImpl(ngrok_token, ngrok_region):
   #apt-get update
@@ -93,7 +107,10 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   print(f"ssh {ssh_common_options} -L 5901:localhost:5901 -p {port} {user_name}@{hostname}")
   print("✂️"*24)
 
-def setupSSHD(ngrok_region = None):
+def setupSSHD(ngrok_region = None, check_gpu_available = False):
+  if check_gpu_available and not _check_gpu_available():
+    return
+
   print("---")
   print("Copy&paste your tunnel authtoken from https://dashboard.ngrok.com/auth")
   print("(You need to sign up for ngrok and login,)")
@@ -224,5 +241,5 @@ subprocess.run(
   print(r.stdout)
 
 def setupVNC(ngrok_region = None):
-  setupSSHD(ngrok_region)
+  setupSSHD(ngrok_region, True)
   _setupVNC()
