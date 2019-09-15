@@ -131,9 +131,9 @@ def setupSSHD(ngrok_region = None, check_gpu_available = False):
   return True
 
 def _setupVNC():
-  libjpeg_ver = "2.0.2"
+  libjpeg_ver = "2.0.3"
   virtualGL_ver = "2.6.2"
-  turboVNC_ver = "2.2.2"
+  turboVNC_ver = "2.2.3"
 
   libjpeg_url = "https://svwh.dl.sourceforge.net/project/libjpeg-turbo/{0}/libjpeg-turbo-official_{0}_amd64.deb".format(libjpeg_ver)
   virtualGL_url = "https://svwh.dl.sourceforge.net/project/virtualgl/{0}/virtualgl_{0}_amd64.deb".format(virtualGL_ver)
