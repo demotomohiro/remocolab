@@ -30,8 +30,7 @@ def _check_gpu_available():
   else:
     return True
 
-  answer = IPython.utils.io.ask_yes_no("Do you want to continue? [y/n]")
-  return answer
+  return IPython.utils.io.ask_yes_no("Do you want to continue? [y/n]")
 
 def _setupSSHDImpl(ngrok_token, ngrok_region):
   #apt-get update
@@ -109,7 +108,7 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
 
 def setupSSHD(ngrok_region = None, check_gpu_available = False):
   if check_gpu_available and not _check_gpu_available():
-    return
+    return False
 
   print("---")
   print("Copy&paste your tunnel authtoken from https://dashboard.ngrok.com/auth")
@@ -129,6 +128,7 @@ def setupSSHD(ngrok_region = None, check_gpu_available = False):
     ngrok_region = region = input()
 
   _setupSSHDImpl(ngrok_token, ngrok_region)
+  return True
 
 def _setupVNC():
   libjpeg_ver = "2.0.2"
@@ -241,5 +241,5 @@ subprocess.run(
   print(r.stdout)
 
 def setupVNC(ngrok_region = None):
-  setupSSHD(ngrok_region, True)
-  _setupVNC()
+  if setupSSHD(ngrok_region, True):
+    _setupVNC()
