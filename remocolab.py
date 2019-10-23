@@ -16,9 +16,13 @@ def _installPkgs(cache, *args):
     _installPkg(cache, i)
 
 def _download(url, path):
-  with urllib.request.urlopen(url) as response:
-    with open(path, 'wb') as outfile:
-      shutil.copyfileobj(response, outfile)
+  try:
+    with urllib.request.urlopen(url) as response:
+      with open(path, 'wb') as outfile:
+        shutil.copyfileobj(response, outfile)
+  except:
+    print("Failed to download ", url)
+    raise
 
 def _check_gpu_available():
   r = subprocess.run(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], stdout = subprocess.PIPE, universal_newlines = True)
