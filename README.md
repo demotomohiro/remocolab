@@ -21,6 +21,7 @@ It secures TurboVNC connection using SSH port forwarding.
 import remocolab
 remocolab.setupSSHD()
 ```
+Note: Use `remocolab.setupSSHD(use_ssh_key=True)` if you want the server to auto login with your public SSH keys (so you won't need specify which private key to go with which server). In this case, prepare a `authorized_keys` file like [this](https://gist.github.com/lamhoangtung/4fca574da11ef45869bdfea8062417b5/raw/ebdc8c6f8fca2162ae3665f91271bd1fc0fa99b6/authorized_keys)
 
 - SSH and TurboVNC:
 ```python3
