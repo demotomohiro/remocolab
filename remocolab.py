@@ -161,12 +161,20 @@ no-httpd
 no-x11-tcp-connections
 """)
 
-  # Install TESLA DRIVER FOR LINUX X64 ver418.67.
+  # Install TESLA DRIVER FOR LINUX X64.
   # Kernel module in this driver is already loaded and cannot be neither removed nor updated.
   # (nvidia, nvidia_uvm, nvidia_drm. See dmesg)
-  # Existing nvidia driver for Xorg is newer than these kernel module and cannot be used with Xorg.
+  # Version number of nvidia driver for Xorg must match version number of these kernel module.
+  # But existing nvidia driver for Xorg might not match.
   # So overwrite them with the nvidia driver that is same version to loaded kernel module.
-  _download("http://us.download.nvidia.com/tesla/418.67/NVIDIA-Linux-x86_64-418.67.run", "nvidia.run")
+  ret = subprocess.run(
+                  ["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"],
+                  stdout = subprocess.PIPE,
+                  check = True,
+                  universal_newlines = True)
+  nvidia_version = ret.stdout.strip()
+  nvidia_url = "https://us.download.nvidia.com/tesla/{0}/NVIDIA-Linux-x86_64-{0}.run".format(nvidia_version)
+  _download(nvidia_url, "nvidia.run")
   pathlib.Path("nvidia.run").chmod(stat.S_IXUSR)
   subprocess.run(["./nvidia.run", "--no-kernel-module", "--ui=none"], input = "1\n", check = True, universal_newlines = True)
 
