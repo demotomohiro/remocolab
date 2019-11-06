@@ -1,10 +1,13 @@
-import pathlib, stat, shutil, urllib.request, subprocess, getpass, time
+import pathlib, stat, shutil, urllib.request, subprocess, getpass, time, os, sys
 import secrets, json, re
 import IPython.utils.io
 
 def _installPkg(name):
   print(f"Install {name}")
-  subprocess.run(["apt-get", "-q", "-y", "install", name], check = True)
+  #Without DEBIAN_FRONTEND=noninteractive, apt-get might call a program that wait for user input.
+  newEnv = os.environ.copy()
+  newEnv["DEBIAN_FRONTEND"] = "noninteractive"
+  subprocess.run(["apt-get", "-q", "-y", "install", name], check = True, env = newEnv)
 
 def _installPkgs(*args):
   for i in args:
@@ -144,7 +147,9 @@ def _setupVNC():
   _installDeb("virtualgl.deb")
   _installDeb("turbovnc.deb")
 
-  _installPkgs("xfce4", "xfce4-terminal")
+  #modprobe is required by nvidia driver installer but kaggle doesn't have it.
+  #kmod provides modprobe.
+  _installPkgs("xfce4", "xfce4-terminal", "kmod")
 
   vnc_sec_conf_p = pathlib.Path("/etc/turbovncserver-security.conf")
   vnc_sec_conf_p.write_text("""\
@@ -209,6 +214,10 @@ no-x11-tcp-connections
   # You can create /dev/tty0 with "mknod /dev/tty0 c 4 0" but you will get permision denied error.
   subprocess.Popen(["Xorg", "-seat", "seat-1", "-allowMouseOpenFail", "-novtswitch", "-nolisten", "tcp"])
 
+  #On kaggle, only root can write /tmp directory in default.
+  #But vncserver need to write a file in /tmp
+  pathlib.Path("/tmp").chmod(0o777)
+
   vncrun_py = pathlib.Path("vncrun.py")
   vncrun_py.write_text("""\
 import subprocess, secrets, pathlib
@@ -237,8 +246,9 @@ subprocess.run(
 #Disable screensaver because no one would want it.
 (pathlib.Path.home() / ".xscreensaver").write_text("mode: off\\n")
 """)
+  #On kaggle, 'su, -c "python3 vncrun.py" colab' runs python3.5 and secrets module is unavailable.
   r = subprocess.run(
-                    ["su", "-c", "python3 vncrun.py", "colab"],
+                    ["su", "-c", sys.executable + " vncrun.py", "colab"],
                     check = True,
                     stdout = subprocess.PIPE,
                     universal_newlines = True)
