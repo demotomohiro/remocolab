@@ -48,3 +48,28 @@ Login to ngrok, click Auth on left side menu, click Copy, return to Google Colab
 ## How to run OpenGL applications
 Put the command to run the OpenGL application after ``vglrun``.
 For example, ``vglrun firefox`` runs firefox and you can watch web sites using WebGL with hardware acceleration.
+
+## Experimental kaggle support
+remocolab in kaggle branch works on [Kaggle](https://www.kaggle.com/).
+1. Create a new Notebook with Python language.
+2. Set settings to:
+   - Internet on
+   - Docker to Latest Available
+   - GPU on if you use TurboVNC
+3. Add a code cell and copy & paste one of following codes to the cell
+
+- SSH only:
+```python3
+!pip install git+https://github.com/demotomohiro/remocolab.git@kaggle
+import remocolab
+remocolab.setupSSHD()
+```
+
+- SSH and TurboVNC:
+```python3
+!pip install git+https://github.com/demotomohiro/remocolab.git@kaggle
+import remocolab
+remocolab.setupVNC()
+```
+
+4. Follow instructions from step 4 in above "How to use".
