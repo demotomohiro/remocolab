@@ -49,6 +49,32 @@ Login to ngrok, click Auth on left side menu, click Copy, return to Google Colab
 Put the command to run the OpenGL application after ``vglrun``.
 For example, ``vglrun firefox`` runs firefox and you can watch web sites using WebGL with hardware acceleration.
 
+## How to setup public key authentication
+By using public key authentication, you can login to ssh server without copy&pasting a password.
+If you don't have an SSH key pair, generate it with ssh-keygen:
+```console
+ssh-keygen -t ecdsa -b 521
+```
+Add following code after ``remocolab.setupSSHD()`` or ``remocolab.setupVNC()``,
+and replace "my public key" in following code with your public key.
+```python3
+!mkdir /home/colab/.ssh
+with open("/home/colab/.ssh/authorized_keys", 'w') as f:
+  f.write("my public key")
+!chown colab /home/colab/.ssh /home/colab/.ssh/authorized_keys
+!chmod 700 /home/colab/.ssh
+!chmod 600 /home/colab/.ssh/authorized_keys
+```
+If you want to login as root, use following code:
+```python3
+!mkdir /root/.ssh
+with open("/root/.ssh/authorized_keys", 'w') as f:
+  f.write("my public key")
+!chmod 700 /root/.ssh
+!chmod 600 /root/.ssh/authorized_keys
+```
+And replace user name colab in ssh command to root.
+
 ## Experimental kaggle support
 remocolab in kaggle branch works on [Kaggle](https://www.kaggle.com/).
 1. Create a new Notebook with Python language.
