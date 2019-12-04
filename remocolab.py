@@ -24,11 +24,17 @@ def _download(url, path):
     print("Failed to download ", url)
     raise
 
-def _check_gpu_available():
+def _get_gpu_name():
   r = subprocess.run(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], stdout = subprocess.PIPE, universal_newlines = True)
   if r.returncode != 0:
+    return None
+  return r.stdout.strip()
+
+def _check_gpu_available():
+  gpu_name = _get_gpu_name()
+  if gpu_name == None:
     print("This is not a runtime with GPU")
-  elif r.stdout == "Tesla K80\n":
+  elif gpu_name == "Tesla K80":
     print("Warning! GPU of your assigned virtual machine is Tesla K80.")
     print("You might get better GPU by reseting the runtime.")
   else:
@@ -134,33 +140,7 @@ def setupSSHD(ngrok_region = None, check_gpu_available = False):
   _setupSSHDImpl(ngrok_token, ngrok_region)
   return True
 
-def _setupVNC():
-  libjpeg_ver = "2.0.3"
-  virtualGL_ver = "2.6.2"
-  turboVNC_ver = "2.2.3"
-
-  libjpeg_url = "https://svwh.dl.sourceforge.net/project/libjpeg-turbo/{0}/libjpeg-turbo-official_{0}_amd64.deb".format(libjpeg_ver)
-  virtualGL_url = "https://svwh.dl.sourceforge.net/project/virtualgl/{0}/virtualgl_{0}_amd64.deb".format(virtualGL_ver)
-  turboVNC_url = "https://svwh.dl.sourceforge.net/project/turbovnc/{0}/turbovnc_{0}_amd64.deb".format(turboVNC_ver)
-
-  _download(libjpeg_url, "libjpeg-turbo.deb")
-  _download(virtualGL_url, "virtualgl.deb")
-  _download(turboVNC_url, "turbovnc.deb")
-  cache = apt.Cache()
-  apt.debfile.DebPackage("libjpeg-turbo.deb", cache).install()
-  apt.debfile.DebPackage("virtualgl.deb", cache).install()
-  apt.debfile.DebPackage("turbovnc.deb", cache).install()
-
-  _installPkgs(cache, "xfce4", "xfce4-terminal")
-  cache.commit()
-
-  vnc_sec_conf_p = pathlib.Path("/etc/turbovncserver-security.conf")
-  vnc_sec_conf_p.write_text("""\
-no-remote-connections
-no-httpd
-no-x11-tcp-connections
-""")
-
+def _setup_nvidia_gl():
   # Install TESLA DRIVER FOR LINUX X64.
   # Kernel module in this driver is already loaded and cannot be neither removed nor updated.
   # (nvidia, nvidia_uvm, nvidia_drm. See dmesg)
@@ -216,6 +196,37 @@ no-x11-tcp-connections
   # Without "-seat seat-1" option, Xorg try to open /dev/tty0 but it doesn't exists.
   # You can create /dev/tty0 with "mknod /dev/tty0 c 4 0" but you will get permision denied error.
   subprocess.Popen(["Xorg", "-seat", "seat-1", "-allowMouseOpenFail", "-novtswitch", "-nolisten", "tcp"])
+
+def _setupVNC():
+  libjpeg_ver = "2.0.3"
+  virtualGL_ver = "2.6.2"
+  turboVNC_ver = "2.2.3"
+
+  libjpeg_url = "https://svwh.dl.sourceforge.net/project/libjpeg-turbo/{0}/libjpeg-turbo-official_{0}_amd64.deb".format(libjpeg_ver)
+  virtualGL_url = "https://svwh.dl.sourceforge.net/project/virtualgl/{0}/virtualgl_{0}_amd64.deb".format(virtualGL_ver)
+  turboVNC_url = "https://svwh.dl.sourceforge.net/project/turbovnc/{0}/turbovnc_{0}_amd64.deb".format(turboVNC_ver)
+
+  _download(libjpeg_url, "libjpeg-turbo.deb")
+  _download(virtualGL_url, "virtualgl.deb")
+  _download(turboVNC_url, "turbovnc.deb")
+  cache = apt.Cache()
+  apt.debfile.DebPackage("libjpeg-turbo.deb", cache).install()
+  apt.debfile.DebPackage("virtualgl.deb", cache).install()
+  apt.debfile.DebPackage("turbovnc.deb", cache).install()
+
+  _installPkgs(cache, "xfce4", "xfce4-terminal")
+  cache.commit()
+
+  vnc_sec_conf_p = pathlib.Path("/etc/turbovncserver-security.conf")
+  vnc_sec_conf_p.write_text("""\
+no-remote-connections
+no-httpd
+no-x11-tcp-connections
+""")
+
+  gpu_name = _get_gpu_name()
+  if gpu_name != None:
+    _setup_nvidia_gl()
 
   vncrun_py = pathlib.Path("vncrun.py")
   vncrun_py.write_text("""\
