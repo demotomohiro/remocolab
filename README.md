@@ -1,6 +1,10 @@
 # Credits to demotomohiro for major setup process
 
 # run colabvnc notebook
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Rayanfer32/remocolab/blob/master/remocolabform.ipynb)
+
+
+"<a href=\"https://colab.research.google.com/github/Rayanfer32/remocolab/blob/master/remocolabform.ipynb\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
 
 
 # remocolab
