@@ -6,13 +6,13 @@
 ## WINDOWS USERS:
 #### DOWNLOAD THESE SOFTWARES:>
 ## Linux Command line (Terminal to run ssh commands)
-#### ![cmder logo](https://cmder.net/favicon.ico)  
+![cmder logo](https://cmder.net/favicon.ico)  
 #### [cmder.net](https://github.com/cmderdev/cmder/releases/download/v1.3.13/cmder_mini.zip) Cmder Mini is enough for ssh 
 #### you can copy the command that shows up on the colab notebook and run it 
 
 ## VNC viewer for windows ... with tight compression 
-### ![tightvnc](https://www.tightvnc.com/logo/tightvnc-logo-90x90.png)  
-### ![tightvnc.com](https://www.tightvnc.com/download.php)
+![tightvnc](https://www.tightvnc.com/logo/tightvnc-logo-90x90.png)  
+### [tightvnc.com](https://www.tightvnc.com/download.php)
 #### open tightvnc viewer and use ``localhost:1`` to connect to colab vnc over ssh
 
 # remocolab
