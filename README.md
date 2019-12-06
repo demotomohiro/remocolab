@@ -43,7 +43,7 @@ Login to ngrok, click Auth on left side menu, click Copy, return to Google Colab
 
 * If you use TurboVNC:
 10. Wait for remocolab setup TurboVNC (about 2 minutes)
-11. When VNC password is displayed, run TurboVNC server, set server address to ``localhost:1`` and connect
+11. When VNC password is displayed, run TurboVNC viewer on your local machine, set server address to ``localhost:1`` and connect.
 12. Then, password will be asked. Copy & paste that VNC password to your TurboVNC viewer.
 
 ## How to run OpenGL applications
