@@ -1,4 +1,4 @@
-## Credits to [@demotomohiro](@demotomohiro) for major setup process
+## Credits to [@demotomohiro](http://github.com/demotomohiro) for major setup process
 
 # Run colabvnc notebook
 ## [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Rayanfer32/remocolab/blob/master/remocolabform.ipynb)
