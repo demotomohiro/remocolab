@@ -6,7 +6,7 @@
 ## WINDOWS USERS:
 #### DOWNLOAD THESE SOFTWARES:>
 #### Linux Command line (Terminal to run ssh commands)
-#### [cmder.net](https://github.com/cmderdev/cmder/releases/download/v1.3.13/cmder_mini.zip)
+#### [cmder.net](https://github.com/cmderdev/cmder/releases/download/v1.3.13/cmder_mini.zip) Cmder Mini is enough for ssh 
 #### you can copy the command that shows up on the colab notebook and run it 
 
 #### VNC viewer for windows ... with tight compression 
