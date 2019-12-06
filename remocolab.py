@@ -95,8 +95,10 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   if not pathlib.Path('/root/.ngrok2/ngrok.yml').exists():
     subprocess.run(["./ngrok", "authtoken", ngrok_token])
 
-  subprocess.Popen(["./ngrok", "tcp", "-region", ngrok_region, "22"])
+  ngrok_proc = subprocess.Popen(["./ngrok", "tcp", "-region", ngrok_region, "22"])
   time.sleep(2)
+  if ngrok_proc.poll() != None:
+    raise RuntimeError("Failed to run ngrok. Return code:" + str(ngrok_proc.returncode) + "\nSee runtime log for more info.")
 
   with urllib.request.urlopen("http://localhost:4040/api/tunnels") as response:
     url = json.load(response)['tunnels'][0]['public_url']
