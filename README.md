@@ -35,6 +35,7 @@ Click "Runtime" -> "Change runtime type" in top menu and change Hardware acceler
 5. Then the message that ask you to copy & paste tunnel authtoken of ngrok will appear.
 Login to ngrok, click Auth on left side menu, click Copy, return to Google Colaboratory, paste it to the text box under the message and push enter key.
 6. Select your ngrok region. Select the one closest to your location. For example, if you were in Japan, type jp and push enter key.
+   - You can also specify ngrok region to ``remocolab.setupSSHD()`` or ``remocolab.setupVNC()`` in the code like ``remocolab.setupSSHD(ngrok_region = "jp")``.
 7. remocolab setup ngrok and SSH server. Please wait for it done (about 2 minutes)
 8. Then, root and colab user password and ssh command to connect the server will appear.
 9. Copy & paste the ssh command to your terminal and login to the server using displayed colab user password.
