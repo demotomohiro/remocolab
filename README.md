@@ -1,11 +1,16 @@
-# Credits to demotomohiro for major setup process
+## Credits to [@demotomohiro](@demotomohiro) for major setup process
 
-# run colabvnc notebook
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Rayanfer32/remocolab/blob/master/remocolabform.ipynb)
+# Run colabvnc notebook
+## [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Rayanfer32/remocolab/blob/master/remocolabform.ipynb)
 
+## On windows:
+### Linux Command line (Terminal to run ssh commands)
+### [cmder.net](https://github.com/cmderdev/cmder/releases/download/v1.3.13/cmder_mini.zip)
+### you can copy the command that shows up on the colab notebook and run it 
 
-"<a href=\"https://colab.research.google.com/github/Rayanfer32/remocolab/blob/master/remocolabform.ipynb\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
-
+### VNC viewer for windows ... with tight compression 
+### [tightvnc.com](https://www.tightvnc.com/download.php)
+### open tightvnc viewer and use ``localhost:1`` to connect to colab vnc over ssh
 
 # remocolab
 remocolab is a Python module to allow remote access to [Google Colaboratory](https://colab.research.google.com/) using SSH or [TurboVNC](https://www.turbovnc.org/).
