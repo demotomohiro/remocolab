@@ -4,16 +4,20 @@
 ## [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Rayanfer32/remocolab/blob/master/remocolabform.ipynb)
 
 ## WINDOWS USERS:
-#### DOWNLOAD THESE SOFTWARES:>
-## Linux Command line (Terminal to run ssh commands)
-![cmder logo](https://cmder.net/favicon.ico)  
-#### [cmder.net](https://github.com/cmderdev/cmder/releases/download/v1.3.13/cmder_mini.zip) Cmder Mini is enough for ssh 
-#### you can copy the command that shows up on the colab notebook and run it 
+## Windows 10 supports SSH in powershell
+## Try `ssh` on Powershell if it doesnt work then you need a Linux command line like http://cmder.net
 
+### DOWNLOAD THE SOFTWARE:>
 ## VNC viewer for windows ... with tight compression 
 ![tightvnc](https://www.tightvnc.com/logo/tightvnc-logo-90x90.png)  
 ### [tightvnc.com](https://www.tightvnc.com/download.php)
 #### open tightvnc viewer and use ``localhost:1`` to connect to colab vnc over ssh
+
+## If `ssh` in powershell doesnt work
+## Linux Command line (Terminal to run ssh commands)
+![cmder logo](https://cmder.net/favicon.ico)  
+#### [cmder.net](https://github.com/cmderdev/cmder/releases/download/v1.3.13/cmder_mini.zip) Cmder Mini is enough for ssh 
+#### you can copy the command that shows up on the colab notebook and run it 
 
 # remocolab
 remocolab is a Python module to allow remote access to [Google Colaboratory](https://colab.research.google.com/) using SSH or [TurboVNC](https://www.turbovnc.org/).
