@@ -294,7 +294,7 @@ if VNC_MODE:
   os.system("sudo apt-get update")
   if browser == "chrome":
     os.system("wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O chrome.deb;sudo dpkg -i chrome.deb;sudo apt install -f")
-  if browser == "firefox"
+  if browser == "firefox":
     os.system("sudo apt install firefox")
 else:
   setupSSHD()
