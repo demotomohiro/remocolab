@@ -119,15 +119,16 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   print(f"ssh {ssh_common_options} -L 5901:localhost:5901 -p {port} {user_name}@{hostname}")
   print("✂️"*24)
 
-def setupSSHD(ngrok_region = None, check_gpu_available = False):
+def setupSSHD(ngrok_token = None, ngrok_region = None, check_gpu_available = False):
   if check_gpu_available and not _check_gpu_available():
     return False
 
-  print("---")
-  print("Copy&paste your tunnel authtoken from https://dashboard.ngrok.com/auth")
-  print("(You need to sign up for ngrok and login,)")
-  #Set your ngrok Authtoken.
-  ngrok_token = getpass.getpass()
+  if not ngrok_token:
+    print("---")
+    print("Copy&paste your tunnel authtoken from https://dashboard.ngrok.com/auth")
+    print("(You need to sign up for ngrok and login,)")
+    #Set your ngrok Authtoken.
+    ngrok_token = getpass.getpass()
 
   if not ngrok_region:
     print("Select your ngrok region:")
@@ -266,6 +267,6 @@ subprocess.run(
                     universal_newlines = True)
   print(r.stdout)
 
-def setupVNC(ngrok_region = None):
-  if setupSSHD(ngrok_region, True):
+def setupVNC(ngrok_token = None, ngrok_region = None):
+  if setupSSHD(ngrok_token, ngrok_region, True):
     _setupVNC()
