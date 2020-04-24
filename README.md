@@ -103,18 +103,20 @@ remocolab.setupVNC()
 
 
 ## If you want to use XRDP or Remote Desktop(mstsc), you might give these a try
-```zsh
-Installing xrdp
 
+Installing xrdp
+```zsh
 sudo apt install xrdp
 sudo apt install xorg
 sudo adduser xrdp ssl-cert
-open new terminal:
-sudo xrdp-sesman -n
-
-open new terminal:
-sudo xrdp -n
-
-also port fwd 3389 using ssh :
-(similar to vnc over ssh)
 ```
+
+open new terminal:
+```zsh
+sudo xrdp-sesman -n
+```
+open new terminal:
+```
+sudo xrdp -n
+```
+also port fwd 3389 using ssh : (similar to vnc over ssh)
