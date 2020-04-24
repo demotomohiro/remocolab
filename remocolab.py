@@ -259,6 +259,7 @@ subprocess.run(
 #Disable screensaver because no one would want it.
 (pathlib.Path.home() / ".xscreensaver").write_text("mode: off\\n")
 """)
+  vncrun_py.chmod(0o644)
   r = subprocess.run(
                     ["su", "-c", "python3 vncrun.py", "colab"],
                     check = True,
