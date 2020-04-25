@@ -42,7 +42,8 @@ def _check_gpu_available():
 
   return IPython.utils.io.ask_yes_no("Do you want to continue? [y/n]")
 
-def _setupSSHDImpl(ngrok_token, ngrok_region):
+
+def _setupSSHDImpl(ngrok_token, ngrok_region, public_ssh_key):
   #apt-get update
   #apt-get upgrade
   cache = apt.Cache()
@@ -66,6 +67,10 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   #Prevent ssh session disconnection.
   with open("/etc/ssh/sshd_config", "a") as f:
     f.write("\n\nClientAliveInterval 120\n")
+    if public_ssh_key is not None:
+      f.write("""AuthorizedKeysFile / root/.ssh/authorized_keys" >> /etc/ssh/sshd_config\n""")
+      f.write(""""PubkeyAuthentication yes" >> /etc/ssh/sshd_config\n""")
+
 
   print("ECDSA key fingerprint of host:")
   ret = subprocess.run(
@@ -90,6 +95,10 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   subprocess.run(["adduser", user_name, "sudo"], check = True)
   subprocess.run(["chpasswd"], input = f"root:{root_password}", universal_newlines = True)
   subprocess.run(["chpasswd"], input = f"{user_name}:{user_password}", universal_newlines = True)
+  if public_ssh_key is not None:
+    subprocess.run(["wget", "-P", "/root/.ssh/", public_ssh_key])
+    subprocess.run(["chmod", "700" , "/root/.ssh"])
+    subprocess.run(["chmod", "600", "/root/.ssh/authorized_keys"])
   subprocess.run(["service", "ssh", "restart"])
 
   if not pathlib.Path('/root/.ngrok2/ngrok.yml').exists():
@@ -119,9 +128,18 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   print(f"ssh {ssh_common_options} -L 5901:localhost:5901 -p {port} {user_name}@{hostname}")
   print("✂️"*24)
 
-def setupSSHD(ngrok_region = None, check_gpu_available = False):
+
+def setupSSHD(ngrok_region=None, check_gpu_available=False, use_ssh_key=False):
   if check_gpu_available and not _check_gpu_available():
     return False
+
+  if use_ssh_key:
+    print("---")
+    print("Copy&paste link to your raw authorized public SSH key")
+    print("Example: https://gist.github.com/lamhoangtung/4fca574da11ef45869bdfea8062417b5/raw/ebdc8c6f8fca2162ae3665f91271bd1fc0fa99b6/authorized_keys")
+    public_ssh_key = getpass.getpass()
+  else:
+    public_ssh_key = None
 
   print("---")
   print("Copy&paste your tunnel authtoken from https://dashboard.ngrok.com/auth")
@@ -140,7 +158,7 @@ def setupSSHD(ngrok_region = None, check_gpu_available = False):
     print("in - India (Mumbai)")
     ngrok_region = region = input()
 
-  _setupSSHDImpl(ngrok_token, ngrok_region)
+  _setupSSHDImpl(ngrok_token, ngrok_region, public_ssh_key)
   return True
 
 def _setup_nvidia_gl():
