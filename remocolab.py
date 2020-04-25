@@ -101,7 +101,11 @@ def _setupSSHDImpl(ngrok_token, ngrok_region, custom_ngrok_server):
       f.write(f"\n\nserver_addr: {custom_ngrok_server}\n")
       f.write("trust_host_root_certs: true\n")
 
-  ngrok_proc = subprocess.Popen(["./ngrok", "tcp", "-region", ngrok_region, "22"])
+  ngrok_args = ["./ngrok", "tcp"]
+  if ngrok_region != None:
+    ngrok_args += ["-region", ngrok_region]
+  ngrok_args.append("22")
+  ngrok_proc = subprocess.Popen(ngrok_args)
   time.sleep(2)
   if ngrok_proc.poll() != None:
     raise RuntimeError("Failed to run ngrok. Return code:" + str(ngrok_proc.returncode) + "\nSee runtime log for more info.")
@@ -135,7 +139,7 @@ def setupSSHD(ngrok_region = None, check_gpu_available = False, custom_ngrok_ser
   #Set your ngrok Authtoken.
   ngrok_token = getpass.getpass()
 
-  if not ngrok_region:
+  if not ngrok_region and custom_ngrok_server == None:
     print("Select your ngrok region:")
     print("us - United States (Ohio)")
     print("eu - Europe (Frankfurt)")
