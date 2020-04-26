@@ -30,10 +30,11 @@ remocolab.setupVNC()
 ```
 
 3. (Optional) If you want to run OpenGL applications or any programs that use GPU,
-Click "Runtime" -> "Change runtime type" in top menu and change Hardware accelerator to GPU. 
+Click "Runtime" -> "Change runtime type" in top menu and change Hardware accelerator to GPU.
 4. Run that cell
 5. Then the message that ask you to copy & paste tunnel authtoken of ngrok will appear.
 Login to ngrok, click Auth on left side menu, click Copy, return to Google Colaboratory, paste it to the text box under the message and push enter key.
+   - You can also specify ngrok token to ``remocolab.setupSSHD()`` or ``remocolab.setupVNC()`` in the code like ``remocolab.setupSSHD(ngrok_token = NGROK_TOKEN_VALUE)``.
 6. Select your ngrok region. Select the one closest to your location. For example, if you were in Japan, type jp and push enter key.
    - You can also specify ngrok region to ``remocolab.setupSSHD()`` or ``remocolab.setupVNC()`` in the code like ``remocolab.setupSSHD(ngrok_region = "jp")``.
 7. remocolab setup ngrok and SSH server. Please wait for it done (about 2 minutes)
