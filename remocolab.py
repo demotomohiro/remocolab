@@ -46,10 +46,7 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   #apt-get update
   #apt-get upgrade
   cache = apt.Cache()
-  cache.update()
   cache.open(None)
-  cache.upgrade()
-  cache.commit()
 
   subprocess.run(["unminimize"], input = "y\n", check = True, universal_newlines = True)
 
