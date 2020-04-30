@@ -1,5 +1,5 @@
 import apt, apt.debfile
-import pathlib, stat, shutil, urllib.request, subprocess, getpass, time
+import pathlib, stat, shutil, urllib.request, subprocess, getpass, time, tempfile
 import secrets, json, re
 import IPython.utils.io
 
@@ -231,7 +231,7 @@ no-x11-tcp-connections
   if gpu_name != None:
     _setup_nvidia_gl()
 
-  vncrun_py = pathlib.Path("vncrun.py")
+  vncrun_py = tempfile.gettempdir() / pathlib.Path("vncrun.py")
   vncrun_py.write_text("""\
 import subprocess, secrets, pathlib
 
@@ -260,7 +260,7 @@ subprocess.run(
 (pathlib.Path.home() / ".xscreensaver").write_text("mode: off\\n")
 """)
   r = subprocess.run(
-                    ["su", "-c", "python3 vncrun.py", "colab"],
+                    ["su", "-c", "python3 " + str(vncrun_py), "colab"],
                     check = True,
                     stdout = subprocess.PIPE,
                     universal_newlines = True)
