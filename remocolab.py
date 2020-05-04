@@ -67,13 +67,14 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   with open("/etc/ssh/sshd_config", "a") as f:
     f.write("\n\nClientAliveInterval 120\n")
 
-  print("ECDSA key fingerprint of host:")
+  msg = ""
+  msg += "ECDSA key fingerprint of host:\n"
   ret = subprocess.run(
                 ["ssh-keygen", "-lvf", "/etc/ssh/ssh_host_ecdsa_key.pub"],
                 stdout = subprocess.PIPE,
                 check = True,
                 universal_newlines = True)
-  print(ret.stdout)
+  msg += ret.stdout + "\n"
 
   _download("https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip", "ngrok.zip")
   shutil.unpack_archive("ngrok.zip")
@@ -82,10 +83,10 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   root_password = secrets.token_urlsafe()
   user_password = secrets.token_urlsafe()
   user_name = "colab"
-  print("✂️"*24)
-  print(f"root password: {root_password}")
-  print(f"{user_name} password: {user_password}")
-  print("✂️"*24)
+  msg += "✂️"*24 + "\n"
+  msg += f"root password: {root_password}\n"
+  msg += f"{user_name} password: {user_password}\n"
+  msg += "✂️"*24 + "\n"
   subprocess.run(["useradd", "-s", "/bin/bash", "-m", user_name])
   subprocess.run(["adduser", user_name, "sudo"], check = True)
   subprocess.run(["chpasswd"], input = f"root:{root_password}", universal_newlines = True)
@@ -108,20 +109,21 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   port = m.group(2)
 
   ssh_common_options =  "-o UserKnownHostsFile=/dev/null -o VisualHostKey=yes"
-  print("---")
-  print("Command to connect to the ssh server:")
-  print("✂️"*24)
-  print(f"ssh {ssh_common_options} -p {port} {user_name}@{hostname}")
-  print("✂️"*24)
-  print("---")
-  print("If you use VNC:")
-  print("✂️"*24)
-  print(f"ssh {ssh_common_options} -L 5901:localhost:5901 -p {port} {user_name}@{hostname}")
-  print("✂️"*24)
+  msg += "---\n"
+  msg += "Command to connect to the ssh server:\n"
+  msg += "✂️"*24 + "\n"
+  msg += f"ssh {ssh_common_options} -p {port} {user_name}@{hostname}\n"
+  msg += "✂️"*24 + "\n"
+  msg += "---\n"
+  msg += "If you use VNC:\n"
+  msg += "✂️"*24 + "\n"
+  msg += f"ssh {ssh_common_options} -L 5901:localhost:5901 -p {port} {user_name}@{hostname}\n"
+  msg += "✂️"*24 + "\n"
+  return msg
 
-def setupSSHD(ngrok_region = None, check_gpu_available = False):
+def _setupSSHDMain(ngrok_region, check_gpu_available):
   if check_gpu_available and not _check_gpu_available():
-    return False
+    return (False, "")
 
   print("---")
   print("Copy&paste your tunnel authtoken from https://dashboard.ngrok.com/auth")
@@ -140,8 +142,11 @@ def setupSSHD(ngrok_region = None, check_gpu_available = False):
     print("in - India (Mumbai)")
     ngrok_region = region = input()
 
-  _setupSSHDImpl(ngrok_token, ngrok_region)
-  return True
+  return (True, _setupSSHDImpl(ngrok_token, ngrok_region))
+
+def setupSSHD(ngrok_region = None, check_gpu_available = False):
+  s, msg = _setupSSHDMain(ngrok_region, check_gpu_available)
+  print(msg)
 
 def _setup_nvidia_gl():
   # Install TESLA DRIVER FOR LINUX X64.
@@ -264,8 +269,11 @@ subprocess.run(
                     check = True,
                     stdout = subprocess.PIPE,
                     universal_newlines = True)
-  print(r.stdout)
+  return r.stdout
 
 def setupVNC(ngrok_region = None):
-  if setupSSHD(ngrok_region, True):
-    _setupVNC()
+  stat, msg = _setupSSHDMain(ngrok_region, True)
+  if stat:
+    msg += _setupVNC()
+
+  print(msg)
