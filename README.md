@@ -65,6 +65,7 @@ with open("/home/colab/.ssh/authorized_keys", 'w') as f:
 !chown colab /home/colab/.ssh /home/colab/.ssh/authorized_keys
 !chmod 700 /home/colab/.ssh
 !chmod 600 /home/colab/.ssh/authorized_keys
+!chown -R colab /home/colab/.ssh
 ```
 If you want to login as root, use following code:
 ```python3
