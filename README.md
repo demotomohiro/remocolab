@@ -34,6 +34,10 @@ Click "Runtime" -> "Change runtime type" in top menu and change Hardware acceler
 4. Run that cell
 5. Then the message that ask you to copy & paste tunnel authtoken of ngrok will appear.
 Login to ngrok, click Auth on left side menu, click Copy, return to Google Colaboratory, paste it to the text box under the message and push enter key.
+   - ngrok token must be kept secret.
+   I understand people hate copy & pasting ngrok token everytime they use remocolab, but I don't know how to skip it without risking a security.
+   If you could specify ngrok token to `remocolab.setupSSHD()` or `remocolab.setupVNC()`, you can save ngrok token to a notebook.
+   Then, you might forget that your notebook contains it and share the notebook.
 6. Select your ngrok region. Select the one closest to your location. For example, if you were in Japan, type jp and push enter key.
    - You can also specify ngrok region to ``remocolab.setupSSHD()`` or ``remocolab.setupVNC()`` in the code like ``remocolab.setupSSHD(ngrok_region = "jp")``.
 7. remocolab setup ngrok and SSH server. Please wait for it done (about 2 minutes)
@@ -49,6 +53,12 @@ Login to ngrok, click Auth on left side menu, click Copy, return to Google Colab
 ## How to run OpenGL applications
 Put the command to run the OpenGL application after ``vglrun``.
 For example, ``vglrun firefox`` runs firefox and you can watch web sites using WebGL with hardware acceleration.
+
+## Arguments of `remocolab.setupSSHD()` and `remocolab.setupVNC()`
+- `ngrok_region`
+  Specify ngrok region like "us", "eu", "ap". [List of region](https://ngrok.com/docs#global-locations)
+- `check_gpu_available`
+  When it is `True`, it checks whether GPU is available and show warning in case GPU is not available.
 
 ## How to setup public key authentication
 By using public key authentication, you can login to ssh server without copy&pasting a password.
