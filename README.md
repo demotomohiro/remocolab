@@ -50,6 +50,10 @@ Login to ngrok, click Auth on left side menu, click Copy, return to Google Colab
 11. When VNC password is displayed, run TurboVNC viewer on your local machine, set server address to ``localhost:1`` and connect.
 12. Then, password will be asked. Copy & paste that VNC password to your TurboVNC viewer.
 
+When you got error and want to rerun `remocolab.setupVNC()` or `remocolab.setupSSHD()`, you need to do `factory reset runtime` before rerun the command.
+As you can run only 1 ngrok process with free ngrok account, running `remocolab.setupVNC/setupSSHD` will fail if there is another instace that already ran remocolab.
+In that case, terminate another instance from `Manage sessions` screen.
+
 ## How to run OpenGL applications
 Put the command to run the OpenGL application after ``vglrun``.
 For example, ``vglrun firefox`` runs firefox and you can watch web sites using WebGL with hardware acceleration.
