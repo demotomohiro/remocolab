@@ -2,18 +2,71 @@ import apt, apt.debfile
 import pathlib, stat, shutil, urllib.request, subprocess, getpass, time, tempfile
 import secrets, json, re
 import IPython.utils.io
+import ipywidgets
 
-def _installPkg(cache, name):
-  pkg = cache[name]
-  if pkg.is_installed:
-    print(f"{name} is already installed")
-  else:
-    print(f"Install {name}")
-    pkg.mark_install()
+# https://salsa.debian.org/apt-team/python-apt
+# https://apt-team.pages.debian.net/python-apt/library/index.html
+class _NoteProgress(apt.progress.base.InstallProgress, apt.progress.base.AcquireProgress, apt.progress.base.OpProgress):
+  def __init__(self):
+    apt.progress.base.InstallProgress.__init__(self)
+    self._label = ipywidgets.Label()
+    display(self._label)
+    self._float_progress = ipywidgets.FloatProgress(min = 0.0, max = 1.0, layout = {'border':'1px solid #118800'})
+    display(self._float_progress)
 
-def _installPkgs(cache, *args):
-  for i in args:
-    _installPkg(cache, i)
+  def close(self):
+    self._float_progress.close()
+    self._label.close()
+
+  def fetch(self, item):
+    self._label.value = "fetch: " + item.shortdesc
+
+  def pulse(self, owner):
+    self._float_progress.value = self.current_items / self.total_items
+    return True
+
+  def status_change(self, pkg, percent, status):
+    self._label.value = "%s: %s" % (pkg, status)
+    self._float_progress.value = percent / 100.0
+
+  def update(self, percent=None):
+    self._float_progress.value = self.percent / 100.0
+    self._label.value = self.op + ": " + self.subop
+
+  def done(self, item=None):
+    pass
+
+class _MyApt:
+  def __init__(self):
+    self._progress = _NoteProgress()
+    self._cache = apt.Cache(self._progress)
+
+  def close(self):
+    self._cache.close()
+    self._cache = None
+    self._progress.close()
+    self._progress = None
+
+  def update_upgrade(self):
+    self._cache.update()
+    self._cache.open(None)
+    self._cache.upgrade()
+
+  def commit(self):
+    self._cache.commit(self._progress, self._progress)
+    self._cache.clear()
+
+  def installPkg(self, *args):
+    for name in args:
+      pkg = self._cache[name]
+      if pkg.is_installed:
+        print(f"{name} is already installed")
+      else:
+        print(f"Install {name}")
+        pkg.mark_install()
+
+  def installDebPackage(self, name):
+    apt.debfile.DebPackage(name, self._cache).install()
 
 def _download(url, path):
   try:
@@ -45,16 +98,15 @@ def _check_gpu_available():
 def _setupSSHDImpl(ngrok_token, ngrok_region):
   #apt-get update
   #apt-get upgrade
-  cache = apt.Cache()
-  cache.update()
-  cache.open(None)
-  cache.upgrade()
-  cache.commit()
+  my_apt = _MyApt()
+  my_apt.update_upgrade()
+  my_apt.commit()
 
   subprocess.run(["unminimize"], input = "y\n", check = True, universal_newlines = True)
 
-  _installPkg(cache, "openssh-server")
-  cache.commit()
+  my_apt.installPkg("openssh-server")
+  my_apt.commit()
+  my_apt.close()
 
   #Reset host keys
   for i in pathlib.Path("/etc/ssh").glob("ssh_host_*_key"):
@@ -217,13 +269,14 @@ def _setupVNC():
   _download(libjpeg_url, "libjpeg-turbo.deb")
   _download(virtualGL_url, "virtualgl.deb")
   _download(turboVNC_url, "turbovnc.deb")
-  cache = apt.Cache()
-  apt.debfile.DebPackage("libjpeg-turbo.deb", cache).install()
-  apt.debfile.DebPackage("virtualgl.deb", cache).install()
-  apt.debfile.DebPackage("turbovnc.deb", cache).install()
+  my_apt = _MyApt()
+  my_apt.installDebPackage("libjpeg-turbo.deb")
+  my_apt.installDebPackage("virtualgl.deb")
+  my_apt.installDebPackage("turbovnc.deb")
 
-  _installPkgs(cache, "xfce4", "xfce4-terminal")
-  cache.commit()
+  my_apt.installPkg("xfce4", "xfce4-terminal")
+  my_apt.commit()
+  my_apt.close()
 
   vnc_sec_conf_p = pathlib.Path("/etc/turbovncserver-security.conf")
   vnc_sec_conf_p.write_text("""\
