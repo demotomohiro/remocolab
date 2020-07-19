@@ -68,6 +68,14 @@ class _MyApt:
   def installDebPackage(self, name):
     apt.debfile.DebPackage(name, self._cache).install()
 
+  def deleteInstalledPkg(self, *args):
+    for pkg in self._cache:
+      if pkg.is_installed:
+        for name in args:
+          if pkg.name.startswith(name):
+            #print(f"Delete {pkg.name}")
+            pkg.mark_delete()
+
 def _download(url, path):
   try:
     with urllib.request.urlopen(url) as response:
@@ -99,6 +107,10 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
   #apt-get update
   #apt-get upgrade
   my_apt = _MyApt()
+  #Following packages are useless because nvidia kernel modules are already loaded and I cannot remove or update it.
+  #Uninstall them because upgrading them take long time.
+  my_apt.deleteInstalledPkg("nvidia-dkms", "nvidia-kernel-common", "nvidia-kernel-source")
+  my_apt.commit()
   my_apt.update_upgrade()
   my_apt.commit()
 
