@@ -40,15 +40,16 @@ Login to ngrok, click Auth on left side menu, click Copy, return to Google Colab
    Then, you might forget that your notebook contains it and share the notebook.
 6. Select your ngrok region. Select the one closest to your location. For example, if you were in Japan, type jp and push enter key.
    - You can also specify ngrok region to ``remocolab.setupSSHD()`` or ``remocolab.setupVNC()`` in the code like ``remocolab.setupSSHD(ngrok_region = "jp")``.
-7. remocolab setup ngrok and SSH server. Please wait for it done (about 2 minutes)
+7. remocolab setup ngrok and SSH server (and desktop environment and TurboVNC server if you run setupVNC). Please wait for it done
+   - `remocolab.setupSSHD()` takes about 2 minutes
+   - `remocolab.setupVNC()` takes about 5 minutes
 8. Then, root and colab user password and ssh command to connect the server will appear.
-9. Copy & paste the ssh command to your terminal and login to the server using displayed colab user password.
+9. Copy & paste that ssh command to your terminal on your local machine and login to the server using displayed colab user password.
 (Even if you just want to use TurboVNC, you need to login using SSH to make SSH port forwarding)
 
 * If you use TurboVNC:
-10. Wait for remocolab setup TurboVNC (about 2 minutes)
-11. When VNC password is displayed, run TurboVNC viewer on your local machine, set server address to ``localhost:1`` and connect.
-12. Then, password will be asked. Copy & paste that VNC password to your TurboVNC viewer.
+10. Run TurboVNC viewer on your local machine, set server address to ``localhost:1`` and connect.
+11. Then, password will be asked. Copy & paste the VNC password displayed in `remocolab.setupVNC()`'s output to your TurboVNC viewer.
 
 When you got error and want to rerun `remocolab.setupVNC()` or `remocolab.setupSSHD()`, you need to do `factory reset runtime` before rerun the command.
 As you can run only 1 ngrok process with free ngrok account, running `remocolab.setupVNC/setupSSHD` will fail if there is another instace that already ran remocolab.
