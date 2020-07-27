@@ -9,7 +9,7 @@ It secures TurboVNC connection using SSH port forwarding.
 - [ngrok](https://ngrok.com/) Tunnel Authtoken
   - You need to sign up for ngrok to get it
 - SSH client
-- (Optional) TurboVNC Viewer if you use it.
+- (Optional) [TurboVNC Viewer](https://sourceforge.net/projects/turbovnc/files/) if you use it.
 
 ## How to use
 1. Create a new notebook on Google Colaboratory
