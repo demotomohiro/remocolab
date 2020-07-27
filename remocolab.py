@@ -103,7 +103,7 @@ def _check_gpu_available():
 
   return IPython.utils.io.ask_yes_no("Do you want to continue? [y/n]")
 
-def _setupSSHDImpl(ngrok_token, ngrok_region):
+def _setupSSHDImpl(ngrok_token, ngrok_region, is_VNC):
   #apt-get update
   #apt-get upgrade
   my_apt = _MyApt()
@@ -174,18 +174,18 @@ def _setupSSHDImpl(ngrok_token, ngrok_region):
 
   ssh_common_options =  "-o UserKnownHostsFile=/dev/null -o VisualHostKey=yes"
   msg += "---\n"
-  msg += "Command to connect to the ssh server:\n"
-  msg += "✂️"*24 + "\n"
-  msg += f"ssh {ssh_common_options} -p {port} {user_name}@{hostname}\n"
-  msg += "✂️"*24 + "\n"
-  msg += "---\n"
-  msg += "If you use VNC:\n"
-  msg += "✂️"*24 + "\n"
-  msg += f"ssh {ssh_common_options} -L 5901:localhost:5901 -p {port} {user_name}@{hostname}\n"
-  msg += "✂️"*24 + "\n"
+  if is_VNC:
+    msg += "Execute following command on your local machine and login before running TurboVNC viewer:\n"
+    msg += "✂️"*24 + "\n"
+    msg += f"ssh {ssh_common_options} -L 5901:localhost:5901 -p {port} {user_name}@{hostname}\n"
+  else:
+    msg += "Command to connect to the ssh server:\n"
+    msg += "✂️"*24 + "\n"
+    msg += f"ssh {ssh_common_options} -p {port} {user_name}@{hostname}\n"
+    msg += "✂️"*24 + "\n"
   return msg
 
-def _setupSSHDMain(ngrok_region, check_gpu_available):
+def _setupSSHDMain(ngrok_region, check_gpu_available, is_VNC):
   if check_gpu_available and not _check_gpu_available():
     return (False, "")
 
@@ -206,10 +206,10 @@ def _setupSSHDMain(ngrok_region, check_gpu_available):
     print("in - India (Mumbai)")
     ngrok_region = region = input()
 
-  return (True, _setupSSHDImpl(ngrok_token, ngrok_region))
+  return (True, _setupSSHDImpl(ngrok_token, ngrok_region, is_VNC))
 
 def setupSSHD(ngrok_region = None, check_gpu_available = False):
-  s, msg = _setupSSHDMain(ngrok_region, check_gpu_available)
+  s, msg = _setupSSHDMain(ngrok_region, check_gpu_available, False)
   print(msg)
 
 def _setup_nvidia_gl():
@@ -337,7 +337,7 @@ subprocess.run(
   return r.stdout
 
 def setupVNC(ngrok_region = None, check_gpu_available = True):
-  stat, msg = _setupSSHDMain(ngrok_region, check_gpu_available)
+  stat, msg = _setupSSHDMain(ngrok_region, check_gpu_available, True)
   if stat:
     msg += _setupVNC()
 
