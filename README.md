@@ -3,6 +3,8 @@ remocolab is a Python module to allow remote access to [Google Colaboratory](htt
 It also install [VirtualGL](https://www.virtualgl.org/) so that you can run OpenGL programs on a Google Colaboratory machine and see the screen on VNC client.
 It secures TurboVNC connection using SSH port forwarding.
 
+- [FAQ](https://github.com/demotomohiro/remocolab/wiki/Frequently-Asked-Questions)
+
 ## Requirements
 - You can use [Google Colaboratory](https://colab.research.google.com/)
   - That means you need Google acount and a browser that is supported by Google Colaboratory.
