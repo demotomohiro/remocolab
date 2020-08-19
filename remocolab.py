@@ -130,6 +130,7 @@ def _setupSSHDImpl(ngrok_token, ngrok_region, is_VNC):
   #Prevent ssh session disconnection.
   with open("/etc/ssh/sshd_config", "a") as f:
     f.write("\n\nClientAliveInterval 120\n")
+    f.write("PermitUserEnvironment yes\n")
 
   msg = ""
   msg += "ECDSA key fingerprint of host:\n"
