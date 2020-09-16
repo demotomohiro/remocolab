@@ -3,6 +3,7 @@ import pathlib, stat, shutil, urllib.request, subprocess, getpass, time, tempfil
 import secrets, json, re
 import IPython.utils.io
 import ipywidgets
+import pyngrok.ngrok, pyngrok.conf
 
 # https://salsa.debian.org/apt-team/python-apt
 # https://apt-team.pages.debian.net/python-apt/library/index.html
@@ -140,10 +141,6 @@ def _setupSSHDImpl(ngrok_token, ngrok_region, is_VNC):
                 universal_newlines = True)
   msg += ret.stdout + "\n"
 
-  _download("https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip", "ngrok.zip")
-  shutil.unpack_archive("ngrok.zip")
-  pathlib.Path("ngrok").chmod(stat.S_IXUSR)
-
   root_password = secrets.token_urlsafe()
   user_password = secrets.token_urlsafe()
   user_name = "colab"
@@ -157,18 +154,9 @@ def _setupSSHDImpl(ngrok_token, ngrok_region, is_VNC):
   subprocess.run(["chpasswd"], input = f"{user_name}:{user_password}", universal_newlines = True)
   subprocess.run(["service", "ssh", "restart"])
 
-  if not pathlib.Path('/root/.ngrok2/ngrok.yml').exists():
-    subprocess.run(["./ngrok", "authtoken", ngrok_token])
-
-  ngrok_proc = subprocess.Popen(["./ngrok", "tcp", "-region", ngrok_region, "22"])
-  time.sleep(2)
-  if ngrok_proc.poll() != None:
-    raise RuntimeError("Failed to run ngrok. Return code:" + str(ngrok_proc.returncode) + "\nSee runtime log for more info.")
-
-  with urllib.request.urlopen("http://localhost:4040/api/tunnels") as response:
-    url = json.load(response)['tunnels'][0]['public_url']
-    m = re.match("tcp://(.+):(\d+)", url)
-
+  pyngrok_config = pyngrok.conf.PyngrokConfig(auth_token = ngrok_token, region = ngrok_region)
+  url = pyngrok.ngrok.connect(port = 22, proto = "tcp", pyngrok_config = pyngrok_config)
+  m = re.match("tcp://(.+):(\d+)", url)
   hostname = m.group(1)
   port = m.group(2)
 
