@@ -104,7 +104,19 @@ def _check_gpu_available():
 
   return IPython.utils.io.ask_yes_no("Do you want to continue? [y/n]")
 
-def _setupSSHDImpl(ngrok_token, ngrok_region, is_VNC):
+def _set_public_key(user, public_key):
+  if public_key != None:
+    home_dir = pathlib.Path("/root" if user == "root" else "/home/" + user)
+    ssh_dir = home_dir / ".ssh"
+    ssh_dir.mkdir(mode = 0o700, exist_ok=True)
+    auth_keys_file = ssh_dir / "authorized_keys"
+    auth_keys_file.write_text(public_key)
+    auth_keys_file.chmod(0o600)
+    if user != "root":
+      shutil.chown(ssh_dir, user)
+      shutil.chown(auth_keys_file, user)
+
+def _setupSSHDImpl(public_key, ngrok_token, ngrok_region, is_VNC):
   #apt-get update
   #apt-get upgrade
   my_apt = _MyApt()
@@ -130,7 +142,10 @@ def _setupSSHDImpl(ngrok_token, ngrok_region, is_VNC):
 
   #Prevent ssh session disconnection.
   with open("/etc/ssh/sshd_config", "a") as f:
-    f.write("\n\nClientAliveInterval 120\n")
+    f.write("\n\n# Options added by remocolab\n")
+    f.write("ClientAliveInterval 120\n")
+    if public_key != None:
+      f.write("PasswordAuthentication no\n")
 
   msg = ""
   msg += "ECDSA key fingerprint of host:\n"
@@ -153,6 +168,7 @@ def _setupSSHDImpl(ngrok_token, ngrok_region, is_VNC):
   subprocess.run(["chpasswd"], input = f"root:{root_password}", universal_newlines = True)
   subprocess.run(["chpasswd"], input = f"{user_name}:{user_password}", universal_newlines = True)
   subprocess.run(["service", "ssh", "restart"])
+  _set_public_key(user_name, public_key)
 
   pyngrok_config = pyngrok.conf.PyngrokConfig(auth_token = ngrok_token, region = ngrok_region)
   url = pyngrok.ngrok.connect(port = 22, proto = "tcp", pyngrok_config = pyngrok_config)
@@ -173,7 +189,7 @@ def _setupSSHDImpl(ngrok_token, ngrok_region, is_VNC):
     msg += "✂️"*24 + "\n"
   return msg
 
-def _setupSSHDMain(ngrok_region, check_gpu_available, is_VNC):
+def _setupSSHDMain(public_key, ngrok_region, check_gpu_available, is_VNC):
   if check_gpu_available and not _check_gpu_available():
     return (False, "")
 
@@ -194,10 +210,10 @@ def _setupSSHDMain(ngrok_region, check_gpu_available, is_VNC):
     print("in - India (Mumbai)")
     ngrok_region = region = input()
 
-  return (True, _setupSSHDImpl(ngrok_token, ngrok_region, is_VNC))
+  return (True, _setupSSHDImpl(public_key, ngrok_token, ngrok_region, is_VNC))
 
-def setupSSHD(ngrok_region = None, check_gpu_available = False):
-  s, msg = _setupSSHDMain(ngrok_region, check_gpu_available, False)
+def setupSSHD(ngrok_region = None, check_gpu_available = False, public_key = None):
+  s, msg = _setupSSHDMain(public_key, ngrok_region, check_gpu_available, False)
   print(msg)
 
 def _setup_nvidia_gl():
@@ -325,8 +341,8 @@ subprocess.run(
                     universal_newlines = True)
   return r.stdout
 
-def setupVNC(ngrok_region = None, check_gpu_available = True):
-  stat, msg = _setupSSHDMain(ngrok_region, check_gpu_available, True)
+def setupVNC(ngrok_region = None, check_gpu_available = True, public_key = None):
+  stat, msg = _setupSSHDMain(public_key, ngrok_region, check_gpu_available, True)
   if stat:
     msg += _setupVNC()
 
