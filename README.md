@@ -5,14 +5,34 @@ It secures TurboVNC connection using SSH port forwarding.
 
 - [FAQ](https://github.com/demotomohiro/remocolab/wiki/Frequently-Asked-Questions)
 
+## How to access SSH server running in colab?
+You cannot directory login to the SSH server running on a colab instace.
+remocolab uses third party service to access it from your PC.
+You can choose [ngrok](https://ngrok.com/) or [Argo Tunnel](https://www.cloudflare.com/products/argo-tunnel/).
+You don't need to buy paid plan.
+Which service works faster can depend on where/when you are.
+- ngrok
+  - require that you sign up for an account.
+  - You don't need to install specific software on client machine.
+  - You need to copy and paste authtoken to colab everytime you run remocolab.
+- Argo Tunnel
+  - You don't need to create account. [Cloudflare provide free version](https://blog.cloudflare.com/a-free-argo-tunnel-for-your-next-project/)
+  - You need to copy [cloudflared](https://developers.cloudflare.com/argo-tunnel/downloads) on your client PC.
+  - You cannot specify argo tunnel server's region. They says the connection uses Argo Smart Routing technology to find the most performant path.
+
 ## Requirements
 - You can use [Google Colaboratory](https://colab.research.google.com/)
   - That means you need Google acount and a browser that is supported by Google Colaboratory.
-- [ngrok](https://ngrok.com/) Tunnel Authtoken
-  - You need to sign up for ngrok to get it
 - SSH client
   - [How to get SSH client on Windows](https://github.com/demotomohiro/remocolab/wiki/Frequently-Asked-Questions#how-to-get-ssh-client-on-windows)
 - (Optional) [TurboVNC Viewer](https://sourceforge.net/projects/turbovnc/files/) if you use it.
+
+If you use ngrok:
+  - [ngrok](https://ngrok.com/) Tunnel Authtoken
+  - You need to sign up for ngrok to get it
+
+If you use Argo Tunnel:
+  - Download [cloudflared](https://developers.cloudflare.com/argo-tunnel/downloads) on your client PC and untar/unzip it.
 
 ## How to use
 1. (Optional) Generate ssh authentication key
@@ -24,6 +44,7 @@ It secures TurboVNC connection using SSH port forwarding.
 2. Create a new notebook on Google Colaboratory
 3. Add a code cell and copy & paste one of following codes to the cell
    - If you use public key authentication, specify content of your public key to `public_key` argument of `remocolab.setupSSHD()` or `remocolab.setupVNC()` like `remocolab.setupSSHD(public_key = "ecdsa-sha2-nistp521 AAA...")`
+   - add `tunnel = "argotunnel"` if you use Argo Tunnel.
 - SSH only:
 ```python3
 !pip install git+https://github.com/demotomohiro/remocolab.git
@@ -40,13 +61,13 @@ remocolab.setupVNC()
 4. (Optional) If you want to run OpenGL applications or any programs that use GPU,
 Click "Runtime" -> "Change runtime type" in top menu and change Hardware accelerator to GPU. 
 5. Run that cell
-6. Then the message that ask you to copy & paste tunnel authtoken of ngrok will appear.
+6. (ngrok only)Then the message that ask you to copy & paste tunnel authtoken of ngrok will appear.
 Login to ngrok, click Auth on left side menu, click Copy, return to Google Colaboratory, paste it to the text box under the message and push enter key.
    - ngrok token must be kept secret.
    I understand people hate copy & pasting ngrok token everytime they use remocolab, but I don't know how to skip it without risking a security.
    If you could specify ngrok token to `remocolab.setupSSHD()` or `remocolab.setupVNC()`, you can save ngrok token to a notebook.
    Then, you might forget that your notebook contains it and share the notebook.
-7. Select your ngrok region. Select the one closest to your location. For example, if you were in Japan, type jp and push enter key.
+7. (ngrok only)Select your ngrok region. Select the one closest to your location. For example, if you were in Japan, type jp and push enter key.
    - You can also specify ngrok region to ``remocolab.setupSSHD()`` or ``remocolab.setupVNC()`` in the code like ``remocolab.setupSSHD(ngrok_region = "jp")``.
 8. remocolab setup ngrok and SSH server (and desktop environment and TurboVNC server if you run setupVNC). Please wait for it done
    - `remocolab.setupSSHD()` takes about 2 minutes
@@ -70,9 +91,13 @@ For example, ``vglrun firefox`` runs firefox and you can watch web sites using W
 
 ## Arguments of `remocolab.setupSSHD()` and `remocolab.setupVNC()`
 - `ngrok_region`
-  Specify ngrok region like "us", "eu", "ap". [List of region](https://ngrok.com/docs#global-locations)
+  Specify ngrok region like "us", "eu", "ap". [List of region](https://ngrok.com/docs#global-locations).
+  This argument is ignored if you specified `tunnel = "argotunnel"`.
 - `check_gpu_available`
   When it is `True`, it checks whether GPU is available and show warning in case GPU is not available.
+- `tunnel`
+  Specify which service you use to access ssh server on colab.
+  It must be "ngrok" or "argotunnel". default value is "ngrok".
 - `public_key`
   Specify ssh public key if you want to use public key authentication.
 ## How to setup public key authentication for root login

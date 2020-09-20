@@ -116,7 +116,7 @@ def _set_public_key(user, public_key):
       shutil.chown(ssh_dir, user)
       shutil.chown(auth_keys_file, user)
 
-def _setupSSHDImpl(public_key, ngrok_token, ngrok_region, is_VNC):
+def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, is_VNC):
   #apt-get update
   #apt-get upgrade
   my_apt = _MyApt()
@@ -170,50 +170,78 @@ def _setupSSHDImpl(public_key, ngrok_token, ngrok_region, is_VNC):
   subprocess.run(["service", "ssh", "restart"])
   _set_public_key(user_name, public_key)
 
-  pyngrok_config = pyngrok.conf.PyngrokConfig(auth_token = ngrok_token, region = ngrok_region)
-  url = pyngrok.ngrok.connect(port = 22, proto = "tcp", pyngrok_config = pyngrok_config)
-  m = re.match("tcp://(.+):(\d+)", url)
-  hostname = m.group(1)
-  port = m.group(2)
-
   ssh_common_options =  "-o UserKnownHostsFile=/dev/null -o VisualHostKey=yes"
+
+  if tunnel == "ngrok":
+    pyngrok_config = pyngrok.conf.PyngrokConfig(auth_token = ngrok_token, region = ngrok_region)
+    url = pyngrok.ngrok.connect(port = 22, proto = "tcp", pyngrok_config = pyngrok_config)
+    m = re.match("tcp://(.+):(\d+)", url)
+    hostname = m.group(1)
+    port = m.group(2)
+    ssh_common_options += f" -p {port}"
+  elif tunnel == "argotunnel":
+    _download("https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.tgz", "cloudflared.tgz")
+    shutil.unpack_archive("cloudflared.tgz")
+    cfd_proc = subprocess.Popen(
+        ["./cloudflared", "tunnel", "--url", "ssh://localhost:22", "--logfile", "cloudflared.log", "--metrics", "localhost:49589"],
+        stdout = subprocess.PIPE,
+        universal_newlines = True
+        )
+    time.sleep(4)
+    if cfd_proc.poll() != None:
+      raise RuntimeError("Failed to run cloudflared. Return code:" + str(cloudflared.returncode) + "\nSee clouldflared.log for more info.")
+    with urllib.request.urlopen("http://127.0.0.1:49589/metrics") as response:
+      text = str(response.read())
+      sub = "\\ncloudflared_tunnel_user_hostnames_counts{userHostname=\"https://"
+      begin = text.index(sub)
+      end = text.index("\"", begin + len(sub))
+      hostname = text[begin + len(sub) : end]
+      ssh_common_options += " -oProxyCommand=\"./cloudflared access ssh --hostname %h\""
+
   msg += "---\n"
   if is_VNC:
     msg += "Execute following command on your local machine and login before running TurboVNC viewer:\n"
     msg += "✂️"*24 + "\n"
-    msg += f"ssh {ssh_common_options} -L 5901:localhost:5901 -p {port} {user_name}@{hostname}\n"
+    msg += f"ssh {ssh_common_options} -L 5901:localhost:5901 {user_name}@{hostname}\n"
   else:
     msg += "Command to connect to the ssh server:\n"
     msg += "✂️"*24 + "\n"
-    msg += f"ssh {ssh_common_options} -p {port} {user_name}@{hostname}\n"
+    msg += f"ssh {ssh_common_options} {user_name}@{hostname}\n"
     msg += "✂️"*24 + "\n"
   return msg
 
-def _setupSSHDMain(public_key, ngrok_region, check_gpu_available, is_VNC):
+def _setupSSHDMain(public_key, tunnel, ngrok_region, check_gpu_available, is_VNC):
   if check_gpu_available and not _check_gpu_available():
     return (False, "")
 
   print("---")
-  print("Copy&paste your tunnel authtoken from https://dashboard.ngrok.com/auth")
-  print("(You need to sign up for ngrok and login,)")
-  #Set your ngrok Authtoken.
-  ngrok_token = getpass.getpass()
+  avail_tunnels = {"ngrok", "argotunnel"}
+  if tunnel not in avail_tunnels:
+    raise RuntimeError("tunnel argument must be one of " + str(avail_tunnels))
 
-  if not ngrok_region:
-    print("Select your ngrok region:")
-    print("us - United States (Ohio)")
-    print("eu - Europe (Frankfurt)")
-    print("ap - Asia/Pacific (Singapore)")
-    print("au - Australia (Sydney)")
-    print("sa - South America (Sao Paulo)")
-    print("jp - Japan (Tokyo)")
-    print("in - India (Mumbai)")
-    ngrok_region = region = input()
+  ngrok_token = None
 
-  return (True, _setupSSHDImpl(public_key, ngrok_token, ngrok_region, is_VNC))
+  if tunnel == "ngrok":
+    print("Copy&paste your tunnel authtoken from https://dashboard.ngrok.com/auth")
+    print("(You need to sign up for ngrok and login,)")
+    #Set your ngrok Authtoken.
+    ngrok_token = getpass.getpass()
 
-def setupSSHD(ngrok_region = None, check_gpu_available = False, public_key = None):
-  s, msg = _setupSSHDMain(public_key, ngrok_region, check_gpu_available, False)
+    if not ngrok_region:
+      print("Select your ngrok region:")
+      print("us - United States (Ohio)")
+      print("eu - Europe (Frankfurt)")
+      print("ap - Asia/Pacific (Singapore)")
+      print("au - Australia (Sydney)")
+      print("sa - South America (Sao Paulo)")
+      print("jp - Japan (Tokyo)")
+      print("in - India (Mumbai)")
+      ngrok_region = region = input()
+
+  return (True, _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, is_VNC))
+
+def setupSSHD(ngrok_region = None, check_gpu_available = False, tunnel = "ngrok", public_key = None):
+  s, msg = _setupSSHDMain(public_key, tunnel, ngrok_region, check_gpu_available, False)
   print(msg)
 
 def _setup_nvidia_gl():
@@ -341,8 +369,8 @@ subprocess.run(
                     universal_newlines = True)
   return r.stdout
 
-def setupVNC(ngrok_region = None, check_gpu_available = True, public_key = None):
-  stat, msg = _setupSSHDMain(public_key, ngrok_region, check_gpu_available, True)
+def setupVNC(ngrok_region = None, check_gpu_available = True, tunnel = "ngrok", public_key = None):
+  stat, msg = _setupSSHDMain(public_key, tunnel, ngrok_region, check_gpu_available, True)
   if stat:
     msg += _setupVNC()
 
