@@ -117,18 +117,7 @@ def _set_public_key(user, public_key):
       shutil.chown(auth_keys_file, user)
 
 def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, is_VNC):
-  #apt-get update
-  #apt-get upgrade
   my_apt = _MyApt()
-  #Following packages are useless because nvidia kernel modules are already loaded and I cannot remove or update it.
-  #Uninstall them because upgrading them take long time.
-  my_apt.deleteInstalledPkg("nvidia-dkms", "nvidia-kernel-common", "nvidia-kernel-source")
-  my_apt.commit()
-  my_apt.update_upgrade()
-  my_apt.commit()
-
-  subprocess.run(["unminimize"], input = "y\n", check = True, universal_newlines = True)
-
   my_apt.installPkg("openssh-server")
   my_apt.commit()
   my_apt.close()
