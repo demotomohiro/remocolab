@@ -89,6 +89,28 @@ In that case, terminate another instance from `Manage sessions` screen.
 Put the command to run the OpenGL application after ``vglrun``.
 For example, ``vglrun firefox`` runs firefox and you can watch web sites using WebGL with hardware acceleration.
 
+## How to mount Google Drive
+remocolab can allow colab user reading/writing files on Google Drive.
+If you just mount drive on Google Colaboratory, only root can access it.
+
+Click the folder icon on left side of Google Colaboratory and click mount Drive icon.
+If you got new code cell that contains python code "from google.colab import ...", create a new notebook, copy your code to it and mount drive same way.
+On new notebook, you can mount drive without getting such code cell.
+  - You can still mount google drive by clicking the given code cell, but it requres getting authorization code and copy&pasting it everytime you run your notebook.
+  - If you mount google drive on new notebook, it automatically mount when your notebook connect to the instance.
+
+Add `mount_gdrive_to` argument with directory name to `remocolab.setupSSHD()` or `remocolab.setupVNC()`.
+For example:
+```python
+  remocolab.setupSSHD(mount_gdrive_to = "drive")
+```
+Then, you can access the content of your drive in `/home/colab/drive`.
+You can also mount specific directory on your drive under colab user's home directory.
+For example:
+```python
+  remocolab.setupSSHD(mount_gdrive_to = "drive", mount_gdrive_from = "My Drive/somedir")
+```
+
 ## Arguments of `remocolab.setupSSHD()` and `remocolab.setupVNC()`
 - `ngrok_region`
   Specify ngrok region like "us", "eu", "ap". [List of region](https://ngrok.com/docs#global-locations).
@@ -98,6 +120,13 @@ For example, ``vglrun firefox`` runs firefox and you can watch web sites using W
 - `tunnel`
   Specify which service you use to access ssh server on colab.
   It must be "ngrok" or "argotunnel". default value is "ngrok".
+- `mount_gdrive_to`
+  Specify a directory under colab user's home directory which is used to mount Google Drive.
+  If it was not specified, Google Drive is not mount under colab user's home directory.
+  Specifying it without mounting Google Drive on Google Colaboratory is error.
+- `mount_gdrive_from`
+  Specify a path of existing directory on your Google Drive which is mounted on the directory specified by `mount_gdrive_to`.
+  This argument is ignored when `mount_gdrive_to` was not specified.
 - `public_key`
   Specify ssh public key if you want to use public key authentication.
 ## How to setup public key authentication for root login
