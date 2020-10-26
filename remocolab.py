@@ -193,7 +193,7 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
     _download("https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.tgz", "cloudflared.tgz")
     shutil.unpack_archive("cloudflared.tgz")
     cfd_proc = subprocess.Popen(
-        ["./cloudflared", "tunnel", "--url", "ssh://localhost:22", "--logfile", "cloudflared.log", "--metrics", "localhost:49589"],
+        ["cloudflared", "tunnel", "--url", "ssh://localhost:22", "--logfile", "cloudflared.log", "--metrics", "localhost:49589"],
         stdout = subprocess.PIPE,
         universal_newlines = True
         )
@@ -206,7 +206,7 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
       begin = text.index(sub)
       end = text.index("\"", begin + len(sub))
       hostname = text[begin + len(sub) : end]
-      ssh_common_options += " -oProxyCommand=\"./cloudflared access ssh --hostname %h\""
+      ssh_common_options += " -oProxyCommand=\"cloudflared access ssh --hostname %h\""
 
   msg += "---\n"
   if is_VNC:
