@@ -184,8 +184,8 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
 
   if tunnel == "ngrok":
     pyngrok_config = pyngrok.conf.PyngrokConfig(auth_token = ngrok_token, region = ngrok_region)
-    url = pyngrok.ngrok.connect(port = 22, proto = "tcp", pyngrok_config = pyngrok_config)
-    m = re.match("tcp://(.+):(\d+)", url)
+    ssh_tunnel = pyngrok.ngrok.connect(addr = 22, proto = "tcp", pyngrok_config = pyngrok_config)
+    m = re.match("tcp://(.+):(\d+)", ssh_tunnel.public_url)
     hostname = m.group(1)
     port = m.group(2)
     ssh_common_options += f" -p {port}"
