@@ -206,7 +206,7 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
       begin = text.index(sub)
       end = text.index("\"", begin + len(sub))
       hostname = text[begin + len(sub) : end]
-      ssh_common_options += " -oProxyCommand=\"./cloudflared access ssh --hostname %h\""
+      ssh_common_options += " -oProxyCommand=\"cloudflared access ssh --hostname %h\""
 
   msg += "---\n"
   if is_VNC:
