@@ -200,13 +200,23 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
     time.sleep(4)
     if cfd_proc.poll() != None:
       raise RuntimeError("Failed to run cloudflared. Return code:" + str(cloudflared.returncode) + "\nSee clouldflared.log for more info.")
-    with urllib.request.urlopen("http://127.0.0.1:49589/metrics") as response:
-      text = str(response.read())
-      sub = "\\ncloudflared_tunnel_user_hostnames_counts{userHostname=\"https://"
-      begin = text.index(sub)
-      end = text.index("\"", begin + len(sub))
-      hostname = text[begin + len(sub) : end]
-      ssh_common_options += " -oProxyCommand=\"cloudflared access ssh --hostname %h\""
+    hostname = None
+    # Sometimes it takes long time to display user host name in cloudflared metrices.
+    for i in range(20):
+      with urllib.request.urlopen("http://127.0.0.1:49589/metrics") as response:
+        text = str(response.read())
+        sub = "\\ncloudflared_tunnel_user_hostnames_counts{userHostname=\"https://"
+        begin = text.find(sub)
+        if begin == -1:
+          time.sleep(10)
+          #print("Retry reading cloudflared user hostname")
+          continue
+        end = text.index("\"", begin + len(sub))
+        hostname = text[begin + len(sub) : end]
+        break
+    if hostname == None:
+      raise RuntimeError("Failed to get user hostname from cloudflared")
+    ssh_common_options += " -oProxyCommand=\"cloudflared access ssh --hostname %h\""
 
   msg += "---\n"
   if is_VNC:
