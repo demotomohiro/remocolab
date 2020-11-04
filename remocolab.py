@@ -1,7 +1,7 @@
 import apt, apt.debfile
 import pathlib, stat, shutil, urllib.request, subprocess, getpass, time, tempfile
 import secrets, json, re
-import IPython.utils.io
+import IPython.utils.io, IPython.display
 import ipywidgets
 import pyngrok.ngrok, pyngrok.conf
 
@@ -11,9 +11,9 @@ class _NoteProgress(apt.progress.base.InstallProgress, apt.progress.base.Acquire
   def __init__(self):
     apt.progress.base.InstallProgress.__init__(self)
     self._label = ipywidgets.Label()
-    display(self._label)
+    IPython.display.display(self._label)
     self._float_progress = ipywidgets.FloatProgress(min = 0.0, max = 1.0, layout = {'border':'1px solid #118800'})
-    display(self._float_progress)
+    IPython.display.display(self._float_progress)
 
   def close(self):
     self._float_progress.close()
@@ -87,6 +87,9 @@ def _download(url, path):
     raise
 
 def _get_gpu_name():
+  if not shutil.which("nvidia-smi"):
+    return None
+
   r = subprocess.run(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], stdout = subprocess.PIPE, universal_newlines = True)
   if r.returncode != 0:
     return None
@@ -127,7 +130,8 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
   my_apt.update_upgrade()
   my_apt.commit()
 
-  subprocess.run(["unminimize"], input = "y\n", check = True, universal_newlines = True)
+  if shutil.which("unminimize"):
+    subprocess.run(["unminimize"], input = "y\n", check = True, universal_newlines = True)
 
   my_apt.installPkg("openssh-server")
   if mount_gdrive_to:
