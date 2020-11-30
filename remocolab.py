@@ -257,6 +257,11 @@ def _setupSSHDMain(public_key, tunnel, ngrok_region, check_gpu_available, mount_
   ngrok_token = None
 
   if tunnel == "ngrok":
+    print("It seems Google is blocking ngrok.")
+    print("If you got error 'kex_exchange_identification: Connection closed by remote host' when you login to ssh, you need to use Argo Tunnel instead of ngrok.")
+    print("Please read this for more details:")
+    print("https://github.com/demotomohiro/remocolab/blob/master/README.md")
+    print("---")
     print("Copy&paste your tunnel authtoken from https://dashboard.ngrok.com/auth")
     print("(You need to sign up for ngrok and login,)")
     #Set your ngrok Authtoken.
