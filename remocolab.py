@@ -235,6 +235,12 @@ def _setupSSHDMain(public_key, tunnel, ngrok_region, check_gpu_available, mount_
     return (False, "")
 
   print("---")
+  if tunnel == None:
+    print("As ngrok doesn't work on colab for long time, default tunnel method has been changed to Argo tunnel.")
+    print("Please read this for more details:")
+    print("https://github.com/demotomohiro/remocolab/blob/master/README.md")
+    tunnel = "argotunnel"
+
   avail_tunnels = {"ngrok", "argotunnel"}
   if tunnel not in avail_tunnels:
     raise RuntimeError("tunnel argument must be one of " + str(avail_tunnels))
@@ -280,7 +286,7 @@ def _setupSSHDMain(public_key, tunnel, ngrok_region, check_gpu_available, mount_
 
   return (True, _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_to, mount_gdrive_from, is_VNC))
 
-def setupSSHD(ngrok_region = None, check_gpu_available = False, tunnel = "ngrok", mount_gdrive_to = None, mount_gdrive_from = None, public_key = None):
+def setupSSHD(ngrok_region = None, check_gpu_available = False, tunnel = None, mount_gdrive_to = None, mount_gdrive_from = None, public_key = None):
   s, msg = _setupSSHDMain(public_key, tunnel, ngrok_region, check_gpu_available, mount_gdrive_to, mount_gdrive_from, False)
   print(msg)
 
@@ -409,7 +415,7 @@ subprocess.run(
                     universal_newlines = True)
   return r.stdout
 
-def setupVNC(ngrok_region = None, check_gpu_available = True, tunnel = "ngrok", mount_gdrive_to = None, mount_gdrive_from = None, public_key = None):
+def setupVNC(ngrok_region = None, check_gpu_available = True, tunnel = None, mount_gdrive_to = None, mount_gdrive_from = None, public_key = None):
   stat, msg = _setupSSHDMain(public_key, tunnel, ngrok_region, check_gpu_available, mount_gdrive_to, mount_gdrive_from, True)
   if stat:
     msg += _setupVNC()
