@@ -143,7 +143,9 @@ with open("/root/.ssh/authorized_keys", 'w') as f:
 And replace user name colab in ssh command to root.
 
 ## Experimental kaggle support
-remocolab in kaggle branch works on [Kaggle](https://www.kaggle.com/).
+- As Kaggle stops sesson right after running ssh server, kaggle is no longer supported.
+
+~~remocolab in kaggle branch works on [Kaggle](https://www.kaggle.com/).~~
 1. Create a new Notebook with Python language.
 2. Set settings to:
    - Internet on
