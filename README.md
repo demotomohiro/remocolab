@@ -6,7 +6,7 @@ It secures TurboVNC connection using SSH port forwarding.
 - [FAQ](https://github.com/demotomohiro/remocolab/wiki/Frequently-Asked-Questions)
 
 ## How to access SSH server running in colab?
-**ngrok currently doesn't work!**
+~~**ngrok currently doesn't work!**~~ ngrok works now
 
 You cannot directory login to the SSH server running on a colab instace.
 remocolab uses third party service to access it from your PC.
