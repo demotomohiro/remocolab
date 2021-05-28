@@ -199,7 +199,7 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
         )
     time.sleep(4)
     if cfd_proc.poll() != None:
-      raise RuntimeError("Failed to run cloudflared. Return code:" + str(cloudflared.returncode) + "\nSee clouldflared.log for more info.")
+      raise RuntimeError("Failed to run cloudflared. Return code:" + str(cfd_proc.returncode) + "\nSee clouldflared.log for more info.")
     hostname = None
     # Sometimes it takes long time to display user host name in cloudflared metrices.
     for i in range(20):
