@@ -127,7 +127,8 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
   my_apt.update_upgrade()
   my_apt.commit()
 
-  subprocess.run(["unminimize"], input = "y\n", check = True, universal_newlines = True)
+  if shutil.which("unminimize"):
+    subprocess.run(["unminimize"], input = "y\n", check = True, universal_newlines = True)
 
   my_apt.installPkg("openssh-server")
   if mount_gdrive_to:
