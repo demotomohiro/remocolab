@@ -144,10 +144,13 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
                   ["ssh-keygen", "-A"],
                   check = True)
 
+  #Change sshd listen port to random port as port 22 sometimes blocked.
+  sshd_listen_port = 51202
   #Prevent ssh session disconnection.
   with open("/etc/ssh/sshd_config", "a") as f:
     f.write("\n\n# Options added by remocolab\n")
     f.write("ClientAliveInterval 120\n")
+    f.write(f"ListenAddress localhost:{sshd_listen_port}\n")
     if public_key != None:
       f.write("PasswordAuthentication no\n")
 
@@ -185,7 +188,7 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
 
   if tunnel == "ngrok":
     pyngrok_config = pyngrok.conf.PyngrokConfig(auth_token = ngrok_token, region = ngrok_region)
-    ssh_tunnel = pyngrok.ngrok.connect(addr = 22, proto = "tcp", pyngrok_config = pyngrok_config)
+    ssh_tunnel = pyngrok.ngrok.connect(addr = sshd_listen_port, proto = "tcp", pyngrok_config = pyngrok_config)
     m = re.match("tcp://(.+):(\d+)", ssh_tunnel.public_url)
     hostname = m.group(1)
     port = m.group(2)
@@ -194,7 +197,7 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
     _download("https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.tgz", "cloudflared.tgz")
     shutil.unpack_archive("cloudflared.tgz")
     cfd_proc = subprocess.Popen(
-        ["./cloudflared", "tunnel", "--url", "ssh://localhost:22", "--logfile", "cloudflared.log", "--metrics", "localhost:49589"],
+        ["./cloudflared", "tunnel", "--url", f"ssh://localhost:{sshd_listen_port}", "--logfile", "cloudflared.log", "--metrics", "localhost:49589"],
         stdout = subprocess.PIPE,
         universal_newlines = True
         )
