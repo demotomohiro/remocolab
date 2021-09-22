@@ -190,8 +190,9 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
     port = m.group(2)
     ssh_common_options += f" -p {port}"
   elif tunnel == "argotunnel":
-    _download("https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.tgz", "cloudflared.tgz")
-    shutil.unpack_archive("cloudflared.tgz")
+    _download("https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64", "cloudflared")
+    #shutil.unpack_archive("cloudflared.tgz")
+    pathlib.Path("cloudflared").chmod(stat.S_IXUSR)
     cfd_proc = subprocess.Popen(
         ["./cloudflared", "tunnel", "--url", "ssh://localhost:22", "--logfile", "cloudflared.log", "--metrics", "localhost:49589"],
         stdout = subprocess.PIPE,
