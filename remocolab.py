@@ -232,7 +232,7 @@ def _setupSSHDImpl(public_key, tunnel, ngrok_token, ngrok_region, mount_gdrive_t
     msg += "✂️"*24 + "\n"
   return msg
 
-def _setupSSHDMain(public_key, tunnel, ngrok_region, check_gpu_available, mount_gdrive_to, mount_gdrive_from, is_VNC):
+def _setupSSHDMain(public_key, tunnel, ngrok_region, check_gpu_available, mount_gdrive_to, mount_gdrive_from,ngrok_token, is_VNC):
   if check_gpu_available and not _check_gpu_available():
     return (False, "")
 
@@ -273,7 +273,8 @@ def _setupSSHDMain(public_key, tunnel, ngrok_region, check_gpu_available, mount_
     print("Copy&paste your tunnel authtoken from https://dashboard.ngrok.com/auth")
     print("(You need to sign up for ngrok and login,)")
     #Set your ngrok Authtoken.
-    ngrok_token = getpass.getpass()
+    if not ngrok_token:
+      ngrok_token = getpass.getpass()
 
     if not ngrok_region:
       print("Select your ngrok region:")
